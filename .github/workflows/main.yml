@@ -246,7 +246,13 @@ jobs:
             const repo = '${{ github.repository }}';
             const runUrl = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}';
             const triggerCommentId = ${{ github.event.comment.id }};
+            const issueNumber = context.issue.number;
             const [owner, repoName] = repo.split('/');
+
+            // 打印调试信息，方便排查
+            console.log('DEBUG 触发评论ID:', triggerCommentId);
+            console.log('DEBUG Issue/PR编号:', issueNumber);
+            console.log('DEBUG 发布步骤结果:', '${{ steps.publish_release.outcome }}');
 
             let body;
             if (success) {
@@ -255,9 +261,24 @@ jobs:
               body = `❌ Release **${tag}** 创建失败，请查看流水线日志：${runUrl}`;
             }
 
-            await github.rest.issues.createCommentReply({
-              owner: owner,
-              repo: repoName,
-              comment_id: triggerCommentId,
-              body: body
-            });
+            try {
+              // 优先回复到你发的/release-action评论下（子回复）
+              await github.rest.issues.createCommentReply({
+                owner: owner,
+                repo: repoName,
+                comment_id: triggerCommentId,
+                body: body
+              });
+              console.log('✅ 已成功回复到触发评论下');
+            } catch (err) {
+              console.error('❌ 子回复失败，错误信息：', err.message);
+              console.error('❌ 错误详情：', JSON.stringify(err.response?.data || err));
+              // 降级方案：新发一条顶层评论，保证一定能收到通知
+              await github.rest.issues.createComment({
+                owner: owner,
+                repo: repoName,
+                issue_number: issueNumber,
+                body: body
+              });
+              console.log('✅ 已降级为新发顶层评论');
+            }
