@@ -3,9 +3,6 @@ on:
   issue_comment:
     types: [ created ]
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 permissions:
   contents: read
 
@@ -21,7 +18,7 @@ jobs:
       release_tag: ${{ steps.extract_version.outputs.TAG }}
       version: ${{ steps.extract_version.outputs.VERSION }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -69,12 +66,12 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Install build dependencies
         run: sudo apt-get install -y ninja-build g++-12
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -82,7 +79,7 @@ jobs:
         run: pip install 'poetry<2.0'
 
       - name: Cache Conan packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.conan2/p
           key: conan-vita-${{ runner.os }}-${{ hashFiles('ci/conan-vitasdk/conanfile.py', 'ci/conan-fmt/conanfile.py', 'ci/conan-libzip/conanfile.py', 'ci/conan-vitasqlite/conanfile.py', 'conanfile.py') }}
@@ -107,7 +104,7 @@ jobs:
             --output-folder .
 
       - name: Upload UsagiPKGJ.vpk
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: usagi-pkgj-vita
           path: ci/build/UsagiPKGJ.vpk
@@ -122,7 +119,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Install build dependencies
         run: |
@@ -132,7 +129,7 @@ jobs:
             libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev \
             libcurl4-openssl-dev
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -140,7 +137,7 @@ jobs:
         run: pip install 'poetry<2.0'
 
       - name: Cache Conan packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.conan2/p
           key: conan-host-${{ runner.os }}-${{ hashFiles('ci/conan-fmt/conanfile.py', 'ci/conan-libzip/conanfile.py', 'conanfile.py') }}
@@ -170,7 +167,7 @@ jobs:
           ninja pkgj_cli pkgj_sim
 
       - name: Upload pkgj_cli
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pkgj-cli
           path: ci/buildhost/pkgj_cli
@@ -178,7 +175,7 @@ jobs:
           retention-days: 7
 
       - name: Upload pkgj_sim
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pkgj-sim
           path: ci/buildhost/pkgj_sim
@@ -195,13 +192,13 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           fetch-tags: true
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4.1.3
+        uses: actions/download-artifact@v8
 
       - name: Publish release
         id: publish_release
@@ -237,7 +234,7 @@ jobs:
         continue-on-error: true
 
       - name: Reply result to /release-action comment
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         continue-on-error: true
         with:
           script: |
