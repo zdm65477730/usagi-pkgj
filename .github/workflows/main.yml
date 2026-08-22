@@ -26,15 +26,19 @@ jobs:
       - name: Extract & verify version from CMakeLists.txt
         id: extract_version
         run: |
-          VITA_VERSION=$(awk '/^[[:space:]]*set\(VITA_VERSION/ {gsub(/.*"|"[^\"]*/,""); print}' CMakeLists.txt | head -n1 | tr -d '\n\r')
-          DISPLAY_VERSION=$(awk '/^[[:space:]]*set\(PKGI_DISPLAY_VERSION/ {gsub(/.*"|"[^\"]*/,""); print}' CMakeLists.txt | head -n1 | tr -d '\n\r')
+          # 稳健sed提取双引号内版本号，去除空白
+          VITA_VERSION=$(sed -n 's/^[[:space:]]*set(VITA_VERSION[[:space:]]*"\([^"]*\)".*/\1/p' CMakeLists.txt | head -n1 | tr -d '[:space:]')
+          DISPLAY_VERSION=$(sed -n 's/^[[:space:]]*set(PKGI_DISPLAY_VERSION[[:space:]]*"\([^"]*\)".*/\1/p' CMakeLists.txt | head -n1 | tr -d '[:space:]')
+
+          echo "DEBUG VITA_VERSION: >${VITA_VERSION}<"
+          echo "DEBUG DISPLAY_VERSION: >${DISPLAY_VERSION}<"
 
           if [[ -z "${VITA_VERSION}" ]]; then
-            echo "::error::❌ 无法读取 VITA_VERSION"
+            echo "::error::❌ 无法读取 VITA_VERSION，请检查 CMakeLists.txt"
             exit 1
           fi
           if [[ -z "${DISPLAY_VERSION}" ]]; then
-            echo "::error::❌ 无法读取 PKGI_DISPLAY_VERSION"
+            echo "::error::❌ 无法读取 PKGI_DISPLAY_VERSION，请检查 CMakeLists.txt"
             exit 1
           fi
           if [[ "${VITA_VERSION}" != "${DISPLAY_VERSION}" ]]; then
