@@ -26,7 +26,6 @@ jobs:
       - name: Extract & verify version from CMakeLists.txt
         id: extract_version
         run: |
-          # 稳健sed提取双引号内版本号，去除空白
           VITA_VERSION=$(sed -n 's/^[[:space:]]*set(VITA_VERSION[[:space:]]*"\([^"]*\)".*/\1/p' CMakeLists.txt | head -n1 | tr -d '[:space:]')
           DISPLAY_VERSION=$(sed -n 's/^[[:space:]]*set(PKGI_DISPLAY_VERSION[[:space:]]*"\([^"]*\)".*/\1/p' CMakeLists.txt | head -n1 | tr -d '[:space:]')
 
@@ -186,6 +185,7 @@ jobs:
     needs: [validate, build-vita, build-host]
     permissions:
       contents: write
+      issues: write
       pull-requests: write
     steps:
       - uses: actions/checkout@v5
@@ -221,6 +221,7 @@ jobs:
 
       - name: Comment result to issue/pr
         uses: actions/github-script@v7
+        continue-on-error: true
         with:
           script: |
             const tag = '${{ needs.validate.outputs.release_tag }}';
