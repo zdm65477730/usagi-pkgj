@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 10
     if: >
       contains(github.event.comment.body, '/release-action')
-      && github.event.comment.author_association in ['OWNER', 'MEMBER']
+      && contains(fromJSON('["OWNER", "MEMBER"]'), github.event.comment.author_association)
     outputs:
       release_tag: ${{ steps.extract_version.outputs.TAG }}
       version: ${{ steps.extract_version.outputs.VERSION }}
