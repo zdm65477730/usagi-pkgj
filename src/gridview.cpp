@@ -326,7 +326,7 @@ void draw_cell(
             dl->AddRectFilled(cov_min, cov_max, kCellBgCol, 4.f);
             dl->AddRect(cov_min, cov_max, kCellBorderCol, 4.f);
 
-            const char* label = is_loading ? "..." : "No image";
+            const char* label = is_loading ? "…" : "无封面";
             const ImVec2 sz    = ImGui::CalcTextSize(label);
             dl->AddText(
                     ImVec2(cov_min.x + (box_w - sz.x) * 0.5f,
@@ -561,7 +561,7 @@ GridResult pkgi_do_main_grid(
 
     if (db_count == 0)
     {
-        const char* text = "No items! Try to refresh.";
+        const char* text = "没有项目！请尝试刷新。";
         const ImVec2 sz  = ImGui::CalcTextSize(text);
         dl->AddText(
                 ImVec2((VITA_WIDTH - sz.x) * 0.5f,

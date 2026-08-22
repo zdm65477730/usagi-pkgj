@@ -77,7 +77,7 @@ void start_download()
         const auto filename = fmt::format(
                 "{}/usagi-pkgj-{}.vpk", pkgi_get_config_folder(), release_tag);
 
-        pkgi_dialog_message("Downloading update", 0);
+        pkgi_dialog_message("正在下载更新", 0);
 
         try
         {
@@ -109,14 +109,14 @@ void start_download()
 
         pkgi_dialog_message(
                 fmt::format(
-                        "The update has been downloaded to {}, install "
-                        "it through VitaShell.",
+                        "更新已下载到 {}，"
+                        "请通过 VitaShell 安装。",
                         filename)
                         .c_str());
     }
     catch (const std::exception& e)
     {
-        pkgi_dialog_error(fmt::format("Download failed: {}", e.what()).c_str());
+        pkgi_dialog_error(fmt::format("下载失败：{}", e.what()).c_str());
     }
 }
 
@@ -126,7 +126,7 @@ void update_thread()
     {
         if (!pkgi_is_module_present("NoNpDrm"))
             pkgi_dialog_error(
-                    "NoNpDrm not found. Games cannot be installed or played.");
+                    "未检测到 NoNpDrm，将无法安装和运行游戏。");
 
         while (pkgi_dialog_is_open())
         {
@@ -193,22 +193,21 @@ void update_thread()
 
         pkgi_dialog_question(
                 fmt::format(
-                        "New Usagi PKGj version {} is available!\nDo you want to "
-                        "download it?",
+                        "发现新版本 Usagi PKGj {}！\n是否下载？",
                         tag)
                         .c_str(),
-                {{"Yes",
+                {{"是",
                   [] {
                       pkgi_start_thread(
                               "usagi-pkgj_update_download", &start_download);
                   }},
-                 {"No", [] {}}});
+                 {"否", [] {}}});
     }
     catch (const std::exception& e)
     {
         LOGF("Update check failed: {}", e.what());
         pkgi_dialog_error(
-                fmt::format("Update check failed: {}", e.what()).c_str());
+                fmt::format("检查更新失败：{}", e.what()).c_str());
     }
 }
 }

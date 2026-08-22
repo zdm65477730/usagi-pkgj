@@ -16,9 +16,9 @@ void show_template_disabled(
 {
     pkgi_dialog_error(
             fmt::format(
-                    "Custom handler template is disabled.\n\n"
-                    "List: {}\nTSV: {}\nTemplate: {}\n\n"
-                    "Fill in src/customhandler.cpp to enable this flow.",
+                    "自定义安装流程模板尚未启用。\n\n"
+                    "列表：{}\nTSV：{}\n模板：{}\n\n"
+                    "请填写 src/customhandler.cpp 以启用该流程。",
                     context.list_name,
                     context.tsv_url,
                     flow_name)
@@ -31,7 +31,7 @@ void handle_vita_like_template(const CustomInstallRequest& request)
     // Template based on the regular PSV branch in src/pkgi.cpp:
     //   gameview = std::make_unique<GameView>(...)
     // Keep this disabled until the custom TSV format and metadata are mapped.
-    show_template_disabled(*request.context, "PS Vita-like");
+    show_template_disabled(*request.context, "PS Vita 类型");
 }
 
 void handle_psx_like_template(const CustomInstallRequest& request)
@@ -39,7 +39,7 @@ void handle_psx_like_template(const CustomInstallRequest& request)
     PKGI_UNUSED(request);
     // Template based on the PS1 branch in src/pkgi.cpp where installation goes
     // through pkgi_install_package / pkgi_start_download with PSX semantics.
-    show_template_disabled(*request.context, "PS1-like");
+    show_template_disabled(*request.context, "PS1 类型");
 }
 
 void handle_psm_like_template(const CustomInstallRequest& request)
@@ -47,14 +47,14 @@ void handle_psm_like_template(const CustomInstallRequest& request)
     PKGI_UNUSED(request);
     // Template based on the PSM branch in src/pkgi.cpp where install handling
     // differs from Vita and PS1 content.
-    show_template_disabled(*request.context, "PSM-like");
+    show_template_disabled(*request.context, "PSM 类型");
 }
 
 void handle_psp_like_template(const CustomInstallRequest& request)
 {
     PKGI_UNUSED(request);
     // Template based on the PSP branch in src/pkgi.cpp / src/gameview.cpp.
-    show_template_disabled(*request.context, "PSP-like");
+    show_template_disabled(*request.context, "PSP 类型");
 }
 }
 
@@ -81,9 +81,9 @@ void pkgi_custom_open_list_template(
     const auto context = pkgi_custom_make_template_context(list_name, tsv_url);
     pkgi_dialog_error(
             fmt::format(
-                    "Custom list selected but loading is not implemented yet.\n\n"
-                    "List: {}\nTSV: {}\n\n"
-                    "Use src/customhandler.cpp as the template entry point.",
+                    "已选择自定义列表，但加载功能尚未实现。\n\n"
+                    "列表：{}\nTSV：{}\n\n"
+                    "请以 src/customhandler.cpp 作为模板入口。",
                     context.list_name,
                     context.tsv_url)
                     .c_str());
@@ -106,7 +106,7 @@ void pkgi_custom_confirm_item_template(const CustomInstallRequest& request)
         handle_psp_like_template(request);
         return;
     case CustomInstallTemplateKind::Unknown:
-        show_template_disabled(*request.context, "Unknown");
+        show_template_disabled(*request.context, "未知");
         return;
     }
 }

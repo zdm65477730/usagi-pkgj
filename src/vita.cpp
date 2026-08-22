@@ -214,6 +214,24 @@ int pkgi_is_japanese_char(const unsigned int c)
     return 0;
 }
 
+int pkgi_is_chinese_char(const unsigned int c)
+{
+    unsigned short ch = c;
+    // CJK symbols and punctuation (。、《》【】…)
+    if (0x3000 <= ch && ch <= 0x303f)
+        return 1;
+    // CJK unified ideographs extension A
+    if (0x3400 <= ch && ch <= 0x4dbf)
+        return 1;
+    // CJK unified ideographs
+    if (0x4e00 <= ch && ch <= 0x9fff)
+        return 1;
+    // fullwidth forms （：，！）
+    if (0xff00 <= ch && ch <= 0xffef)
+        return 1;
+    return 0;
+}
+
 int pkgi_is_latin_char(const unsigned int c)
 {
     unsigned short ch = c;
@@ -684,13 +702,14 @@ void pkgi_start(void)
     }
 
     vita2d_init_advanced(4 * 1024 * 1024);
-    vita2d_system_pgf_config pgf_confs[4] = {
+    vita2d_system_pgf_config pgf_confs[5] = {
+            {SCE_FONT_LANGUAGE_SIMPLIFIED_CHINESE, pkgi_is_chinese_char},
             {SCE_FONT_LANGUAGE_JAPANESE, pkgi_is_japanese_char},
             {SCE_FONT_LANGUAGE_KOREAN, pkgi_is_korean_char},
             {SCE_FONT_LANGUAGE_LATIN, pkgi_is_latin_char},
             {SCE_FONT_LANGUAGE_DEFAULT, NULL},
     };
-    g_font = vita2d_load_system_pgf(3, pgf_confs);
+    g_font = vita2d_load_system_pgf(4, pgf_confs);
 
     g_time = sceKernelGetProcessTimeWide();
 
@@ -840,7 +859,7 @@ void pkgi_delete_dir(const std::string& path)
 
     if (dfd < 0)
         throw formatEx<std::runtime_error>(
-                "failed sceIoDopen({}):\n{:#08x}",
+                "sceIoDopen({}) 失败：\n{:#08x}",
                 path,
                 static_cast<uint32_t>(dfd));
 
@@ -870,7 +889,7 @@ void pkgi_delete_dir(const std::string& path)
             const auto ret = sceIoRemove(new_path.c_str());
             if (ret < 0)
                 throw formatEx<std::runtime_error>(
-                        "failed sceIoRemove({}):\n{:#08x}",
+                        "sceIoRemove({}) 失败：\n{:#08x}",
                         new_path,
                         static_cast<uint32_t>(ret));
         }
@@ -882,7 +901,7 @@ void pkgi_delete_dir(const std::string& path)
     res = sceIoRmdir(path.c_str());
     if (res < 0)
         throw formatEx<std::runtime_error>(
-                "failed sceIoRmdir({}):\n{:#08x}",
+                "sceIoRmdir({}) 失败：\n{:#08x}",
                 path,
                 static_cast<uint32_t>(res));
 }
@@ -1035,7 +1054,7 @@ std::string pkgi_get_system_version()
         const auto res = _vshSblGetSystemSwVersion(&info);
         if (res < 0)
             throw std::runtime_error(fmt::format(
-                    "sceKernelGetSystemSwVersion failed: {:#08x}",
+                    "sceKernelGetSystemSwVersion 调用失败：{:#08x}",
                     static_cast<uint32_t>(res)));
         return std::string(info.versionString);
     }();

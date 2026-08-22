@@ -41,17 +41,17 @@ static std::vector<BrowseNode> build_tree(const Config& config)
 {
     auto root = std::vector<BrowseNode>{
         { "PlayStation Vita",   std::nullopt, {}, "", "" },
-        { "  Games",            ModeGames,    {}, "", "" },
-        { "  DLCs",             ModeDlcs,     {}, "", "" },
-        { "  Themes",           ModeThemes,   {}, "", "" },
-        { "  Demos",            ModeDemos,    {}, "", "" },
+        { "  游戏",            ModeGames,    {}, "", "" },
+        { "  DLC",             ModeDlcs,     {}, "", "" },
+        { "  主题",           ModeThemes,   {}, "", "" },
+        { "  试玩",            ModeDemos,    {}, "", "" },
         { "PlayStation Portable", std::nullopt, {}, "", "" },
-        { "  Games",            ModePspGames, {}, "", "" },
-        { "  DLCs",             ModePspDlcs,  {}, "", "" },
+        { "  游戏",            ModePspGames, {}, "", "" },
+        { "  DLC",             ModePspDlcs,  {}, "", "" },
         { "PlayStation 1",      std::nullopt, {}, "", "" },
-        { "  Games",            ModePsxGames, {}, "", "" },
+        { "  游戏",            ModePsxGames, {}, "", "" },
         { "PlayStation Mobile", std::nullopt, {}, "", "" },
-        { "  Games",            ModePsmGames, {}, "", "" },
+        { "  游戏",            ModePsmGames, {}, "", "" },
     };
 
     bool custom_heading_added = false;
@@ -61,7 +61,7 @@ static std::vector<BrowseNode> build_tree(const Config& config)
             continue;
         if (!custom_heading_added)
         {
-            root.push_back({ "Custom Lists", std::nullopt, {}, "", "" });
+            root.push_back({ "自定义列表", std::nullopt, {}, "", "" });
             custom_heading_added = true;
         }
         root.push_back({
@@ -257,7 +257,7 @@ void BrowseView::render() const
     const int font_h   = pkgi_text_height("M");
 
     // ── Breadcrumb header ────────────────────────────────────────────────────
-    std::string breadcrumb = "Home";
+    std::string breadcrumb = "主页";
     {
         const std::vector<BrowseNode>* cur = &_root;
         bool is_first = true;
@@ -270,7 +270,7 @@ void BrowseView::render() const
         }
     }
 
-    const std::string header = fmt::format("Browse: {}", breadcrumb);
+    const std::string header = fmt::format("浏览：{}", breadcrumb);
     pkgi_draw_text(
             (VITA_WIDTH - pkgi_text_width(header.c_str())) / 2,
             0,
@@ -343,13 +343,13 @@ void BrowseView::render() const
 
     const HintSegment root_hint[] = {
         { pkgi_button_str(pkgi_ok_button()), pkgi_button_color(pkgi_ok_button()) },
-        { " Select", PKGI_COLOR_TEXT_TAIL },
+        { " 选择", PKGI_COLOR_TEXT_TAIL },
     };
     const HintSegment child_hint[] = {
         { pkgi_button_str(pkgi_ok_button()), pkgi_button_color(pkgi_ok_button()) },
-        { " Select  ", PKGI_COLOR_TEXT_TAIL },
+        { " 选择  ", PKGI_COLOR_TEXT_TAIL },
         { pkgi_button_str(pkgi_cancel_button()), pkgi_button_color(pkgi_cancel_button()) },
-        { " Back", PKGI_COLOR_TEXT_TAIL },
+        { " 返回", PKGI_COLOR_TEXT_TAIL },
     };
 
     const HintSegment* hint = _stack.empty() ? root_hint : child_hint;

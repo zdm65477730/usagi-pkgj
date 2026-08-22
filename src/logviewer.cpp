@@ -51,7 +51,7 @@ void LogViewer::render(const pkgi_input& input)
     ImGui::SetNextWindowSize(ImVec2(ViewerW, ViewerH), 0);
 
     ImGui::Begin(
-            "Log Viewer###logviewer",
+            "日志查看器###logviewer",
             nullptr,
             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
                     ImGuiWindowFlags_NoCollapse |
@@ -59,7 +59,7 @@ void LogViewer::render(const pkgi_input& input)
                     ImGuiWindowFlags_NoScrollbar |
                     ImGuiWindowFlags_NoScrollWithMouse);
 
-    ImGui::Text("Lines: %d", n);
+    ImGui::Text("行数：%d", n);
     ImGui::Separator();
 
     const float footer_h =
@@ -74,7 +74,7 @@ void LogViewer::render(const pkgi_input& input)
 
     if (n == 0)
     {
-        ImGui::TextDisabled("(no log messages yet)");
+        ImGui::TextDisabled("（暂无日志）");
     }
     else
     {
@@ -118,9 +118,9 @@ void LogViewer::render(const pkgi_input& input)
 
     ImGui::Separator();
     ImGui::TextDisabled(
-            "[Up/Down] navigate   "
-            "(hold 1s = fast scroll)   "
-            "[Circle] close");
+            PKGI_UTF8_SORT_ASC "/" PKGI_UTF8_SORT_DESC " 移动   "
+            "（长按 1 秒快速滚动）   "
+            PKGI_UTF8_O " 关闭");
 
     ImGui::End();
 }

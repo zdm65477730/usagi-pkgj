@@ -101,7 +101,7 @@ void ConfigEditor::render()
     ImGui::SetNextWindowSize(ImVec2(EditorW, EditorH), 0);
 
     ImGui::Begin(
-            "Config Editor — config.txt###cfgedit",
+            "配置编辑器 — config.txt###cfgedit",
             nullptr,
             ImGuiWindowFlags_NoResize   | ImGuiWindowFlags_NoMove   |
             ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings |
@@ -120,7 +120,7 @@ void ConfigEditor::render()
 
     if (_lines.empty())
     {
-        ImGui::TextDisabled("(file is empty or not found)");
+        ImGui::TextDisabled("（文件为空或不存在）");
     }
     else
     {
@@ -153,7 +153,7 @@ void ConfigEditor::render()
                 std::strncpy(
                         _ime_buf, _lines[i].c_str(), sizeof(_ime_buf) - 1);
                 _ime_buf[sizeof(_ime_buf) - 1] = '\0';
-                pkgi_dialog_input_text("Edit line", _ime_buf);
+                pkgi_dialog_input_text("编辑行", _ime_buf);
                 _ime_active = true;
             }
 
@@ -170,9 +170,9 @@ void ConfigEditor::render()
     // ── Footer ────────────────────────────────────────────────────────────────
     ImGui::Separator();
     ImGui::TextDisabled(
-            "[Cross] Edit line    "
-            "[Triangle] Save & close    "
-            "[Circle] Discard");
+            PKGI_UTF8_X " 编辑行    "
+            PKGI_UTF8_T " 保存并关闭    "
+            PKGI_UTF8_O " 放弃修改");
 
     ImGui::End();
 }

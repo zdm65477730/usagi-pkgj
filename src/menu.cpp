@@ -41,31 +41,31 @@ typedef struct
 } MenuEntry;
 
 static const MenuEntry menu_entries[] = {
-        {MenuSearch, "Search...", 0},
-        {MenuSearchClear, PKGI_UTF8_CLEAR " clear", 0},
+        {MenuSearch, "搜索…", 0},
+        {MenuSearchClear, PKGI_UTF8_CLEAR " 清除搜索", 0},
 
-        {MenuText, "Sort by:", 0},
-        {MenuSort, "Title", SortByTitle},
-        {MenuSort, "Region", SortByRegion},
-        {MenuSort, "Name", SortByName},
-        {MenuSort, "Size", SortBySize},
-        {MenuSort, "Date", SortByDate},
+        {MenuText, "排序方式：", 0},
+        {MenuSort, "标题 ID", SortByTitle},
+        {MenuSort, "区域", SortByRegion},
+        {MenuSort, "名称", SortByName},
+        {MenuSort, "大小", SortBySize},
+        {MenuSort, "日期", SortByDate},
 
-        {MenuText, "Filters:", 0},
-        {MenuFilter, "Asia", DbFilterRegionASA},
-        {MenuFilter, "Europe", DbFilterRegionEUR},
-        {MenuFilter, "Japan", DbFilterRegionJPN},
-        {MenuFilter, "USA", DbFilterRegionUSA},
-        {MenuFilter, "Installed games only", DbFilterInstalled},
+        {MenuText, "筛选：", 0},
+        {MenuFilter, "亚洲", DbFilterRegionASA},
+        {MenuFilter, "欧洲", DbFilterRegionEUR},
+        {MenuFilter, "日本", DbFilterRegionJPN},
+        {MenuFilter, "美国", DbFilterRegionUSA},
+        {MenuFilter, "仅已安装的游戏", DbFilterInstalled},
 
-        {MenuText, "Display:", 0},
-        {MenuGridView, "Grid view (games)", 0},
+        {MenuText, "显示：", 0},
+        {MenuGridView, "网格视图（游戏）", 0},
 
-        {MenuRefresh, "Refresh", 0},
-        {MenuConfigEdit, "Edit config.txt", 0},
-        {MenuLogView, "Log viewer", 0},
+        {MenuRefresh, "刷新", 0},
+        {MenuConfigEdit, "编辑 config.txt", 0},
+        {MenuLogView, "日志查看器", 0},
 
-        {MenuBack, "Back to categories", 0},
+        {MenuBack, "返回分类", 0},
 };
 
 int pkgi_menu_is_open(void)

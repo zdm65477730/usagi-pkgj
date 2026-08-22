@@ -76,7 +76,7 @@ void pkgi_dialog_error(const char* text)
 
     ++dialog_name;
 
-    dialog_title = "ERROR";
+    dialog_title = "错误";
     dialog_text = text;
 
     dialog_allow_close = 1;
@@ -175,7 +175,7 @@ void pkgi_do_dialog()
     {
         ImGui::Separator();
         if (ImGui::Button(
-                    "OK",
+                    "确定",
                     ImVec2{ImGui::GetWindowContentRegionWidth(),
                            ImGui::GetTextLineHeightWithSpacing()}))
         {

@@ -55,7 +55,7 @@ void Download::download_start(void)
 {
     LOGF("Resuming PKG download at offset {}", download_offset);
     info_update = pkgi_time_msec() + 1000;
-    update_status("Downloading");
+    update_status("正在下载");
 }
 
 void Download::update_progress()
@@ -100,7 +100,7 @@ static void rc_init(
     if (in_len < 5)
     {
         throw DownloadError(
-                "internal error - lzrc input underflow! pkg may be corrupted");
+                "内部错误 - lzrc 输入下溢！pkg 可能已损坏");
     }
 
     rc->input = static_cast<const uint8_t*>(in);
@@ -252,8 +252,8 @@ static int lzrc_decompress(void* out, int out_len, const void* in, int in_len)
             if (rc.out_ptr == rc.out_len)
             {
                 throw DownloadError(
-                        "internal error - lzrc output overflow! pkg may be "
-                        "corrupted");
+                        "内部错误 - lzrc 输出上溢！pkg 可能"
+                        "已损坏");
             }
             rc.output[rc.out_ptr++] = (uint8_t)byte;
             last_byte = (uint8_t)byte;
@@ -320,15 +320,15 @@ static int lzrc_decompress(void* out, int out_len, const void* in, int in_len)
             if (match_dist > rc.out_ptr)
             {
                 throw DownloadError(
-                        "internal error - lzrc match_dist out of range! pkg "
-                        "may be corrupted");
+                        "内部错误 - lzrc match_dist 越界！pkg "
+                        "可能已损坏");
             }
 
             if (rc.out_ptr + match_len + 1 > rc.out_len)
             {
                 throw DownloadError(
-                        "internal error - lzrc output overflow! pkg may be "
-                        "corrupted");
+                        "内部错误 - lzrc 输出上溢！pkg 可能"
+                        "已损坏");
             }
 
             const uint8_t* match_src = rc.output + rc.out_ptr - match_dist;
@@ -385,7 +385,7 @@ void Download::download_data(
         uint8_t* buffer, uint32_t size, int encrypted, int save)
 {
     if (is_canceled())
-        throw std::runtime_error("download was canceled");
+        throw std::runtime_error("下载已取消");
 
     if (size == 0)
         return;
@@ -400,7 +400,7 @@ void Download::download_data(
         const int64_t http_length = _http->get_length();
         if (http_length < 0)
         {
-            throw DownloadError("HTTP response has unknown length");
+            throw DownloadError("HTTP 响应长度未知");
         }
 
         download_size = http_length + download_offset;
@@ -418,7 +418,7 @@ void Download::download_data(
         {
             const int read = _http->read(buffer + pos, size - pos);
             if (read == 0)
-                throw DownloadError("HTTP connection closed");
+                throw DownloadError("HTTP 连接已断开");
             pos += read;
         }
     }
@@ -447,7 +447,7 @@ void Download::download_data(
         }
 
         if (!pkgi_write(item_file, buffer, write))
-            throw formatEx<DownloadError>("failed to write to {}", item_path);
+            throw formatEx<DownloadError>("写入 {} 失败", item_path);
     }
 }
 
@@ -455,7 +455,7 @@ void Download::skip_to_file_offset(uint64_t to_offset)
 {
     if (to_offset < encrypted_offset)
         throw DownloadError(
-                fmt::format("can't seek backward to {}", to_offset));
+                fmt::format("无法回退到偏移 {}", to_offset));
 
     std::vector<uint8_t> down(64 * 1024);
     while (encrypted_offset != to_offset)
@@ -483,7 +483,7 @@ void Download::create_file()
     LOGF("Creating PKG file: {}", item_name);
     item_file = pkgi_create(item_path.c_str());
     if (!item_file)
-        throw formatEx<DownloadError>("cannot create file {}", item_name);
+        throw formatEx<DownloadError>("无法创建文件 {}", item_name);
 }
 
 void Download::open_file()
@@ -491,14 +491,14 @@ void Download::open_file()
     LOGF("Opening file for resume: {}", item_name);
     item_file = pkgi_openrw(item_path.c_str());
     if (!item_file)
-        throw formatEx<DownloadError>("cannot create file {}", item_name);
+        throw formatEx<DownloadError>("无法创建文件 {}", item_name);
 }
 
 int Download::download_head(const uint8_t* rif)
 {
     LOG("Downloading PKG header");
 
-    item_name = "Preparing...";
+    item_name = "准备中…";
     item_path = fmt::format("{}/sce_sys/package/head.bin", root);
 
     BOOST_SCOPE_EXIT_ALL(&)
@@ -519,14 +519,14 @@ int Download::download_head(const uint8_t* rif)
         get32be(head.data() + PKG_HEADER_SIZE) !=
                 0x7F657874) // this check breaks pkg type1
     {
-        throw DownloadError("wrong pkg header");
+        throw DownloadError("错误的 pkg 文件头");
     }
 
     // contentid is at 0x50 for psm games
     if (rif && !(pkgi_memequ(rif + 0x10, head.data() + 0x30, 0x30) ||
                  pkgi_memequ(rif + 0x50, head.data() + 0x30, 0x30)))
     {
-        throw DownloadError("zRIF content id doesn't match pkg");
+        throw DownloadError("zRIF 内容 ID 与 pkg 不匹配");
     }
 
     const auto meta_offset = get32be(head.data() + 8);
@@ -571,7 +571,7 @@ int Download::download_head(const uint8_t* rif)
         aes128_encrypt(&ctx, iv, key);
     }
     else
-        throw DownloadError("invalid key type " + std::to_string(key_type));
+        throw DownloadError("无效的密钥类型 " + std::to_string(key_type));
 
     aes128_ctr_init(&aes, key);
 
@@ -764,7 +764,7 @@ void Download::download_file_content_to_iso(uint64_t item_size)
         {
             if (!pkgi_write(item_file, data.data(), block_size))
                 throw DownloadError(
-                        fmt::format("failed to write to %s", item_path));
+                        fmt::format("写入 {} 失败", item_path));
         }
         else
         {
@@ -777,12 +777,12 @@ void Download::download_file_content_to_iso(uint64_t item_size)
             if (out_size != int(iso_block) * ISO_SECTOR_SIZE)
             {
                 throw DownloadError(
-                        "internal error - lzrc decompression failed! "
-                        "pkg may be corrupted");
+                        "内部错误 - lzrc 解压失败！"
+                        "pkg 可能已损坏");
             }
             if (!pkgi_write(item_file, uncompressed.data(), out_size))
                 throw DownloadError(
-                        fmt::format("failed to write to %s", item_path));
+                        fmt::format("写入 {} 失败", item_path));
         }
     }
 
@@ -850,14 +850,14 @@ void Download::download_file_content_to_edat(uint64_t item_size)
         {
             if (!pkgi_write(item_file, data.data(), data.size()))
                 throw DownloadError(
-                        fmt::format("failed to write to %s", item_path));
+                        fmt::format("写入 {} 失败", item_path));
             data.clear();
             data.reserve(flush_size);
         }
     }
 
     if (!pkgi_write(item_file, data.data(), data.size()))
-        throw DownloadError(fmt::format("failed to write to %s", item_path));
+        throw DownloadError(fmt::format("写入 {} 失败", item_path));
     skip_to_file_offset(item_size);
 }
 
@@ -877,7 +877,7 @@ int Download::download_files(void)
     for (; item_index < index_count; ++item_index)
     {
         if (is_canceled())
-            throw std::runtime_error("download was canceled");
+            throw std::runtime_error("下载已取消");
 
         uint8_t item[32];
         pkgi_memcpy(
@@ -986,7 +986,7 @@ int Download::download_files(void)
         {
             open_file();
             if (pkgi_seek(item_file, encrypted_offset) < 0)
-                throw ResumeError("failed to seek for resume");
+                throw ResumeError("续传时定位文件位置失败");
         }
         else
             create_file();
@@ -1048,7 +1048,7 @@ int Download::download_tail(void)
         }
     };
 
-    item_name = "Finishing...";
+    item_name = "正在收尾…";
     item_path = fmt::format("{}/sce_sys/package/tail.bin", root);
 
     create_file();
@@ -1102,7 +1102,7 @@ int Download::check_integrity(const uint8_t* digest)
 int Download::create_stat()
 {
     LOG("creating stat.bin");
-    update_status("Creating stat.bin");
+    update_status("正在创建 stat.bin");
 
     const auto path = fmt::format("{}/sce_sys/package/stat.bin", root);
 
@@ -1116,7 +1116,7 @@ int Download::create_stat()
 int Download::create_rif(const uint8_t* rif)
 {
     LOG("creating work.bin");
-    update_status("Creating work.bin");
+    update_status("正在创建 work.bin");
 
     const auto path = fmt::format("{}/sce_sys/package/work.bin", root);
 
@@ -1129,12 +1129,12 @@ int Download::create_rif(const uint8_t* rif)
 int Download::create_psm_rif(const uint8_t* rif)
 {
     LOG("creating RO/License");
-    update_status("Creating RO/License");
+    update_status("正在创建 RO/License");
     const auto folder = fmt::format("{}/RO/License", root);
     pkgi_mkdirs(folder.c_str());
 
     LOG("creating work.bin");
-    update_status("Creating work.bin");
+    update_status("正在创建 work.bin");
 
     const auto path = fmt::format("{}/RO/License/FAKE.rif", root);
 
@@ -1146,7 +1146,7 @@ int Download::create_psm_rif(const uint8_t* rif)
 
 int Download::adjust_psm_files(void)
 {
-    update_status("Creating additional psm files");
+    update_status("正在创建 PSM 附加文件");
     LOG("Removing sce_sys");
     const auto sce_sys = fmt::format("{}/sce_sys", root);
     pkgi_delete_dir(sce_sys);
@@ -1191,7 +1191,7 @@ int Download::pkgi_download(
 
     try
     {
-        update_status("Downloading");
+        update_status("正在下载");
         sha256_init(&sha);
 
         resuming = false;
@@ -1329,7 +1329,7 @@ void Download::deserialize_state()
         uint8_t version;
         iarchive(version);
         if (version != 1)
-            throw std::runtime_error("invalid resume data version");
+            throw std::runtime_error("无效的续传数据版本");
 
         iarchive(save_as_iso);
         iarchive(download_offset, download_size);
@@ -1358,6 +1358,6 @@ void Download::deserialize_state()
     catch (const std::exception& e)
     {
         throw formatEx<ResumeError>(
-                "can't resume download:\n{}\nResume data deleted.", e.what());
+                "无法续传下载：\n{}\n续传数据已删除。", e.what());
     }
 }

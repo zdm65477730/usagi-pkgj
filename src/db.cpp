@@ -23,17 +23,17 @@ std::string pkgi_mode_to_string(Mode mode)
 #define RET(mode, str) \
     case Mode##mode:   \
         return str
-        RET(Games,    "PSV Games");
-        RET(Dlcs,     "PSV DLCs");
-        RET(Themes,   "PSV Themes");
-        RET(Demos,    "PSV Demos");
-        RET(PsmGames, "PSM Games");
-        RET(PspGames, "PSP Games");
-        RET(PspDlcs,  "PSP DLCs");
-        RET(PsxGames, "PS1 Games");
+        RET(Games,    "PSV 游戏");
+        RET(Dlcs,     "PSV DLC");
+        RET(Themes,   "PSV 主题");
+        RET(Demos,    "PSV 试玩");
+        RET(PsmGames, "PSM 游戏");
+        RET(PspGames, "PSP 游戏");
+        RET(PspDlcs,  "PSP DLC");
+        RET(PsxGames, "PS1 游戏");
 #undef RET
     }
-    return "unknown mode";
+    return "未知模式";
 }
 
 TitleDatabase::TitleDatabase(const std::string& dbPath) : _dbPath(dbPath)
@@ -303,11 +303,11 @@ void TitleDatabase::update(Mode mode, Http* http, const std::string& update_url)
 
     if (db_size == 0)
         throw std::runtime_error(
-                "list is empty... check for newer pkgj version");
+                "列表为空…请检查是否有更新版本的 PKGj");
     if (db_size != db_total)
         throw std::runtime_error(
-                "TSV file is truncated, check your Internet connection and "
-                "retry");
+                "TSV 文件不完整，请检查网络连接后"
+                "重试");
 
     pkgi_close(item_file);
     item_file = nullptr;
@@ -497,7 +497,7 @@ void TitleDatabase::reload(
         catch (const std::exception& e)
         {
             throw formatEx<std::runtime_error>(
-                    "failed to parse line {}: {}", line, e.what());
+                    "解析第 {} 行失败：{}", line, e.what());
         }
     }
 

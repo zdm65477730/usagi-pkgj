@@ -56,25 +56,25 @@ const char* presence_label(DbPresence presence)
     switch (presence)
     {
     case PresenceUnknown:
-        return "Unknown";
+        return "未知";
     case PresenceIncomplete:
-        return "Incomplete";
+        return "不完整";
     case PresenceInstalling:
-        return "Installing";
+        return "安装中";
     case PresenceInstalled:
-        return "Installed";
+        return "已安装";
     case PresenceMissing:
-        return "Missing";
+        return "未下载";
     case PresenceGamePresent:
-        return "Base game present";
+        return "已安装本体游戏";
     }
-    return "Unknown";
+    return "未知";
 }
 
 std::string friendly_size(int64_t size)
 {
     if (size <= 0)
-        return "unknown";
+        return "未知";
     if (size < 1000LL)
         return fmt::format("{} B", size);
     if (size < 1000LL * 1000)
@@ -114,13 +114,13 @@ const char* install_action_label(Mode mode)
     switch (mode)
     {
     case ModePspGames:
-        return "Install ISO";
+        return "安装 ISO";
     case ModePspDlcs:
-        return "Install DLC";
+        return "安装 DLC";
     case ModePsxGames:
-        return "Install";
+        return "安装";
     default:
-        return "Install";
+        return "安装";
     }
 }
 
@@ -129,13 +129,13 @@ const char* cancel_action_label(Mode mode)
     switch (mode)
     {
     case ModePspGames:
-        return "Cancel ISO";
+        return "取消 ISO";
     case ModePspDlcs:
-        return "Cancel DLC";
+        return "取消 DLC";
     case ModePsxGames:
-        return "Cancel";
+        return "取消";
     default:
-        return "Cancel";
+        return "取消";
     }
 }
 
@@ -319,8 +319,8 @@ void GameView::render()
                         {pm.x + cover_w, pm.y + cover_h},
                         IM_COL32(70, 80, 110, 255),
                         4.f);
-                const char* l1 = is_loading ? "Downloading" : "No image";
-                const char* l2 = is_loading ? "cover..." : nullptr;
+                const char* l1 = is_loading ? "正在下载" : "无封面";
+                const char* l2 = is_loading ? "封面…" : nullptr;
                 draw_centered_status_text(
                         ldl, pm, cover_w, cover_h, l1, l2,
                         IM_COL32(160, 170, 200, 200));
@@ -375,10 +375,10 @@ void GameView::render()
         // Single combined firmware line: "Required: X.XX (current: Y.YY)"
         {
             const std::string req_str =
-                    min_ver.empty() ? "unknown" : min_ver;
+                    min_ver.empty() ? "未知" : min_ver;
             const std::string fw_line =
-                    fmt::format("{} (current: {})", req_str, sys_ver);
-            row("Required firmware:",
+                    fmt::format("{}（当前：{}）", req_str, sys_ver);
+            row("最低固件版本：",
                 fw_line.c_str(),
                 fw_ok ? ImVec4(0.3f, 1.f, 0.5f, 1.f)
                       : ImVec4(1.f, 0.35f, 0.35f, 1.f));
@@ -388,7 +388,7 @@ void GameView::render()
 
         // Installed version + base compat pack on one line
         {
-            ImGui::TextDisabled("Installed version:");
+            ImGui::TextDisabled("已安装版本：");
             ImGui::SameLine(label_x);
             if (installed)
                 ImGui::TextColored(
@@ -397,21 +397,21 @@ void GameView::render()
                         _game_version.c_str());
             else
                 ImGui::TextColored(
-                        ImVec4(1.f, 0.88f, 0.25f, 1.f), "not installed");
+                        ImVec4(1.f, 0.88f, 0.25f, 1.f), "未安装");
 
             // Base compat pack status on the same line if there is info
             if (_comppack_versions.present ||
                 !_comppack_versions.base.empty())
             {
                 ImGui::SameLine();
-                ImGui::TextDisabled("  Base cp:");
+                ImGui::TextDisabled("  基础包：");
                 ImGui::SameLine();
                 if (_comppack_versions.base.empty())
                     ImGui::TextColored(
-                            ImVec4(1.f, 0.88f, 0.25f, 1.f), "no");
+                            ImVec4(1.f, 0.88f, 0.25f, 1.f), "无");
                 else
                     ImGui::TextColored(
-                            ImVec4(0.3f, 1.f, 0.5f, 1.f), "yes");
+                            ImVec4(0.3f, 1.f, 0.5f, 1.f), "有");
             }
         }
 
@@ -421,11 +421,11 @@ void GameView::render()
         {
             ImGui::TextColored(
                     ImVec4(1.f, 0.9f, 0.2f, 1.f),
-                    "Compat pack: installed (unknown version)");
+                    "兼容包：已安装（版本未知）");
         }
         else if (!_comppack_versions.patch.empty())
         {
-            row("Patch compat pack:", _comppack_versions.patch.c_str());
+            row("补丁兼容包：", _comppack_versions.patch.c_str());
         }
 
         // ── Diagnostic ───────────────────────────────────────────────────────
@@ -438,31 +438,31 @@ void GameView::render()
     {
         // ── PSP / non-vita mode ──────────────────────────────────────────────
         ImGui::Text(fmt::format(
-                            "Content ID: {}",
-                            _item->content.empty() ? "unknown"
+                            "内容 ID：{}",
+                            _item->content.empty() ? "未知"
                                                    : _item->content)
                             .c_str());
-        ImGui::Text(fmt::format("Package size: {}", friendly_size(_item->size))
+        ImGui::Text(fmt::format("包大小：{}", friendly_size(_item->size))
                             .c_str());
         ImGui::Text(fmt::format(
-                            "Last update: {}",
-                            _item->date.empty() ? "unknown" : _item->date)
+                            "最后更新：{}",
+                            _item->date.empty() ? "未知" : _item->date)
                             .c_str());
         ImGui::Spacing();
 
-        ImGui::Text("Diagnostic:");
-        ImGui::Text(fmt::format("- Status: {}",
+        ImGui::Text("诊断：");
+        ImGui::Text(fmt::format("- 状态：{}",
                                 presence_label(_item->presence))
                             .c_str());
         ImGui::Text(fmt::format(
-                            "- NoPspEmuDrm kernel plugin: {}",
-                            _nopspemudrm_present ? "present" : "not detected")
+                            "- NoPspEmuDrm 内核插件：{}",
+                            _nopspemudrm_present ? "存在" : "未检测到")
                             .c_str());
-        ImGui::Text("- Install as ISO: available");
+        ImGui::Text("- 安装为 ISO：可用");
         if (_nopspemudrm_present)
-            ImGui::Text("- LiveArea PBP queue: available");
+            ImGui::Text("- LiveArea PBP 队列：可用");
         else
-            ImGui::Text("- LiveArea PBP queue: unavailable without plugin");
+            ImGui::Text("- LiveArea PBP 队列：无插件时不可用");
     }
 
     ImGui::PopTextWrapPos();
@@ -486,8 +486,8 @@ void GameView::render()
             draw_button_hint(
                     PKGI_BUTTON_T,
                     _downloader->is_in_queue(CompPackBase, _item->titleid)
-                            ? "Cancel Base CP"
-                            : "Install Base CP",
+                            ? "取消基础包"
+                            : "安装基础包",
                     false);
         }
 
@@ -497,8 +497,8 @@ void GameView::render()
             draw_button_hint(
                     PKGI_BUTTON_S,
                     _downloader->is_in_queue(CompPackPatch, _item->titleid)
-                            ? "Cancel Patch CP"
-                            : "Install Patch CP",
+                            ? "取消补丁包"
+                            : "安装补丁包",
                     false);
         }
     }
@@ -509,7 +509,7 @@ void GameView::render()
     }
 
     same_line_hint_gap();
-    draw_button_hint(pkgi_cancel_button(), "Close", false);
+    draw_button_hint(pkgi_cancel_button(), "关闭", false);
 
     ImGui::End();
 }
@@ -569,25 +569,25 @@ void GameView::printDiagnostic()
     auto const systemVersion = pkgi_get_system_version();
     auto const minSystemVersion = get_min_system_version();
 
-    ImGui::Text("Diagnostic:");
+    ImGui::Text("诊断：");
 
     if (systemVersion < minSystemVersion)
     {
         if (!_comppack_versions.present)
         {
             if (_refood_present)
-                ImGui::Text("- This game will work thanks to reF00D");
+                ImGui::Text("- 借助 reF00D 可运行此游戏");
             else if (_0syscall6_present)
-                ImGui::Text("- This game will work thanks to 0syscall6");
+                ImGui::Text("- 借助 0syscall6 可运行此游戏");
             else
                 printError(
-                        "- Your firmware is too old to play this game, you "
-                        "must install reF00D or 0syscall6");
+                        "- 固件版本过低，无法运行此游戏，请安装 reF00D 或 "
+                        "0syscall6");
         }
     }
     else
     {
-        ImGui::Text("- Your firmware is recent enough");
+        ImGui::Text("- 固件版本满足要求");
     }
 
     if (_comppack_versions.present && _comppack_versions.base.empty() &&
@@ -595,17 +595,15 @@ void GameView::printDiagnostic()
     {
         ImGui::TextColored(
                 Yellow,
-                "- A compatibility pack is installed but not by PKGj, please "
-                "make sure it matches the installed version or reinstall it "
-                "with PKGj");
+                "- 已安装兼容包但不是通过 PKGj 安装的，请确认其与已安装版本"
+                "一致，或用 PKGj 重新安装");
         ok = false;
     }
 
     if (_comppack_versions.base.empty() && !_comppack_versions.patch.empty())
         printError(
-                "- You have installed an update compatibility pack without "
-                "installing the base pack, install the base pack first and "
-                "reinstall the update compatibility pack.");
+                "- 未安装基础兼容包就安装了更新兼容包，请先安装基础包，再"
+                "重新安装更新兼容包。");
 
     std::string comppack_version;
     if (!_comppack_versions.patch.empty())
@@ -616,20 +614,18 @@ void GameView::printDiagnostic()
     if (_item->presence == PresenceInstalled && !comppack_version.empty() &&
         comppack_version < _game_version)
         printError(
-                "- The version of the game does not match the installed "
-                "compatibility pack. If you have updated the game, also "
-                "install the update compatibility pack.");
+                "- 游戏版本与已安装的兼容包不匹配。如果已更新游戏，请同时"
+                "安装更新兼容包。");
 
     if (_item->presence == PresenceInstalled &&
         comppack_version > _game_version)
         printError(
-                "- The version of the game does not match the installed "
-                "compatibility pack. Downgrade to the base compatibility "
-                "pack or update the game through the Live Area.");
+                "- 游戏版本与已安装的兼容包不匹配。请降级到基础兼容包，"
+                "或通过 LiveArea 更新游戏。");
 
     if (_item->presence != PresenceInstalled)
     {
-        ImGui::Text("- Game not installed");
+        ImGui::Text("- 游戏未安装");
         ok = false;
     }
 
@@ -686,12 +682,12 @@ void GameView::start_download_package(PspInstallMode psp_install_mode)
         LOGF("[{}] {} - already installed", _item->titleid, _item->name);
         pkgi_dialog_question(
         fmt::format(
-                "{} is already installed."
-                "Would you like to redownload it?",
+                "{} 已安装。"
+                "是否重新下载？",
                 _item->name)
                 .c_str(),
-        {{"Redownload.", [this, psp_install_mode] { this->do_download(psp_install_mode); }},
-         {"Dont Redownload.", [] {} }});
+        {{"重新下载", [this, psp_install_mode] { this->do_download(psp_install_mode); }},
+         {"取消", [] {} }});
         return;
     }
     this->do_download(psp_install_mode);

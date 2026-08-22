@@ -15,25 +15,25 @@ std::string type_to_string(Type type)
     switch (type)
     {
     case Type::Game:
-        return "game";
+        return "游戏";
     case Type::Patch:
-        return "patch";
+        return "补丁";
     case Type::Dlc:
         return "DLC";
     case Type::PsmGame:
-        return "PSM game";
+        return "PSM 游戏";
     case Type::PsxGame:
-        return "PSX game";
+        return "PS1 游戏";
     case Type::PspGame:
-        return "PSP game";
+        return "PSP 游戏";
     case Type::PspDlc:
         return "PSP DLC";
     case Type::CompPackBase:
-        return "Base Comp Pack";
+        return "基础兼容包";
     case Type::CompPackPatch:
-        return "Patch Comp Pack";
+        return "补丁兼容包";
     }
-    return "unknown";
+    return "未知";
 }
 
 Downloader::Downloader()

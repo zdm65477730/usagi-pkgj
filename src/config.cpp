@@ -350,7 +350,7 @@ Config pkgi_load_config()
     catch (const std::exception& e)
     {
         throw formatEx<std::runtime_error>(
-                "Failed to load config:\n{}", e.what());
+                "加载配置失败：\n{}", e.what());
     }
 }
 

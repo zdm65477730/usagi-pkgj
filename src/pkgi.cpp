@@ -186,7 +186,7 @@ void configure_db(TitleDatabase* db, const char* search, const Config* config)
         snprintf(
                 error_state,
                 sizeof(error_state),
-                "can't reload list: %s",
+                "无法重新加载列表：%s",
                 e.what());
         pkgi_dialog_error(error_state);
     }
@@ -234,7 +234,7 @@ void pkgi_refresh_thread(void)
             {
                 std::lock_guard<Mutex> lock(refresh_mutex);
                 current_action = fmt::format(
-                        "Refreshing {} [{}/{}]",
+                        "正在刷新 {} [{}/{}]",
                         pkgi_mode_to_string(mode),
                         i + 1,
                         mode_count);
@@ -247,7 +247,7 @@ void pkgi_refresh_thread(void)
             {
                 std::lock_guard<Mutex> lock(refresh_mutex);
                 current_action = fmt::format(
-                        "Refreshing games compatibility packs [{}/{}]",
+                        "正在刷新游戏兼容包 [{}/{}]",
                         mode_count - 1,
                         mode_count);
             }
@@ -259,7 +259,7 @@ void pkgi_refresh_thread(void)
             {
                 std::lock_guard<Mutex> lock(refresh_mutex);
                 current_action = fmt::format(
-                        "Refreshing updates compatibility packs [{}/{}]",
+                        "正在刷新更新兼容包 [{}/{}]",
                         mode_count,
                         mode_count);
             }
@@ -278,7 +278,7 @@ void pkgi_refresh_thread(void)
         snprintf(
                 error_state,
                 sizeof(error_state),
-                "can't get list: %s",
+                "无法获取列表：%s",
                 e.what());
         pkgi_dialog_error(error_state);
     }
@@ -341,12 +341,12 @@ void pkgi_install_package(Downloader& downloader, DbItem* item)
         LOGF("[{}] {} - already installed", item->content, item->name);
         pkgi_dialog_question(
         fmt::format(
-                "{} is already installed."
-                "Would you like to redownload it?", 
+                "{} 已安装。"
+                "是否重新下载？", 
                 item->name)
                 .c_str(),
-        {{"Redownload.", [&downloader, item] { do_download(downloader, item); }},
-         {"Dont Redownload.", [] {} }});
+        {{"重新下载", [&downloader, item] { do_download(downloader, item); }},
+         {"取消", [] {} }});
         return;
     }
     
@@ -766,7 +766,7 @@ void pkgi_do_main(Downloader& downloader, pkgi_input* input)
 
     if (db_count == 0)
     {
-        const char* text = "No items! Try to refresh.";
+        const char* text = "没有项目！请尝试刷新。";
 
         int w = pkgi_text_width(text);
         pkgi_draw_text(
@@ -919,7 +919,7 @@ void pkgi_do_head(void)
         pkgi_snprintf(
                 battery,
                 sizeof(battery),
-                "Battery: %u%%",
+                "电量：%u%%",
                 pkgi_bettery_get_level());
 
         uint32_t color;
@@ -1086,21 +1086,21 @@ void pkgi_do_tail(Downloader& downloader)
         pkgi_snprintf(
                 text,
                 sizeof(text),
-                "Downloading %s: %s (%s, %d%%)",
+                "正在下载 %s：%s（%s，%d%%）",
                 type_to_string(current_download->type).c_str(),
                 current_download->name.c_str(),
                 sspeed.c_str(),
                 static_cast<int>(download_offset * 100 / download_size));
     }
     else
-        pkgi_snprintf(text, sizeof(text), "Idle");
+        pkgi_snprintf(text, sizeof(text), "空闲");
 
     const uint32_t tail_status_color =
             current_download ? PKGI_COLOR_TEXT_DOWNLOAD : PKGI_COLOR_TEXT_TAIL;
     pkgi_draw_text(0, bottom_y, tail_status_color, text);
     if (mode == ModeDlcs) 
     {
-        pkgi_snprintf(text, sizeof(text), "Selected items: %d/%d", selected_items.size(), 32 - pkgi_list_dir_contents("ux0:bgdl/t").size());
+        pkgi_snprintf(text, sizeof(text), "已选择：%d/%d", selected_items.size(), 32 - pkgi_list_dir_contents("ux0:bgdl/t").size());
         pkgi_draw_text((VITA_WIDTH - pkgi_text_width(text)) / 2, bottom_y, tail_status_color, text);
     }
     const auto second_line = bottom_y + font_height + PKGI_MAIN_ROW_PADDING;
@@ -1110,11 +1110,11 @@ void pkgi_do_tail(Downloader& downloader)
 
     if (count == total)
     {
-        pkgi_snprintf(text, sizeof(text), "Count: %u", count);
+        pkgi_snprintf(text, sizeof(text), "数量：%u", count);
     }
     else
     {
-        pkgi_snprintf(text, sizeof(text), "Count: %u (%u)", count, total);
+        pkgi_snprintf(text, sizeof(text), "数量：%u（共 %u）", count, total);
     }
     pkgi_draw_text(0, second_line, PKGI_COLOR_TEXT_TAIL, text);
 
@@ -1134,7 +1134,7 @@ void pkgi_do_tail(Downloader& downloader)
     }
 
     char free[64];
-    pkgi_snprintf(free, sizeof(free), "Free: %s", size);
+    pkgi_snprintf(free, sizeof(free), "剩余：%s", size);
 
     int rightw = pkgi_text_width(free);
     pkgi_draw_text(
@@ -1150,25 +1150,25 @@ void pkgi_do_tail(Downloader& downloader)
     if (pkgi_overlay_is_open() || pkgi_dialog_is_open())
     {
         append_button_segment(bottom_segments, pkgi_ok_button());
-        append_text_segment(bottom_segments, " select ");
+        append_text_segment(bottom_segments, " 选择 ");
         append_button_segment(bottom_segments, pkgi_cancel_button());
-        append_text_segment(bottom_segments, " close");
+        append_text_segment(bottom_segments, " 关闭");
     }
     else if (pkgi_menu_is_open())
     {
         append_button_segment(bottom_segments, pkgi_ok_button());
-        append_text_segment(bottom_segments, " select  ");
+        append_text_segment(bottom_segments, " 选择  ");
         append_button_segment(bottom_segments, PKGI_BUTTON_T);
-        append_text_segment(bottom_segments, " close  ");
+        append_text_segment(bottom_segments, " 关闭  ");
         append_button_segment(bottom_segments, pkgi_cancel_button());
-        append_text_segment(bottom_segments, " cancel");
+        append_text_segment(bottom_segments, " 取消");
     }
     else
     {
         if (mode == ModeGames || mode == ModePspGames)
         {
             append_button_segment(bottom_segments, pkgi_ok_button());
-            append_text_segment(bottom_segments, " details ");
+            append_text_segment(bottom_segments, " 详情 ");
         }
         else
         {
@@ -1176,23 +1176,23 @@ void pkgi_do_tail(Downloader& downloader)
             if (item && item->presence == PresenceInstalling)
             {
                 append_button_segment(bottom_segments, pkgi_ok_button());
-                append_text_segment(bottom_segments, " cancel ");
+                append_text_segment(bottom_segments, " 取消 ");
             }
             else if (item && item->presence != PresenceInstalled)
             {
                 append_button_segment(bottom_segments, pkgi_ok_button());
-                append_text_segment(bottom_segments, " install ");
+                append_text_segment(bottom_segments, " 安装 ");
             }
         }
         append_button_segment(bottom_segments, PKGI_BUTTON_T);
-        append_text_segment(bottom_segments, " menu ");
+        append_text_segment(bottom_segments, " 菜单 ");
         if (mode == ModeDlcs)
         {
             append_button_segment(bottom_segments, PKGI_BUTTON_S);
-            append_text_segment(bottom_segments, " select ");
+            append_text_segment(bottom_segments, " 多选 ");
         }
         append_button_segment(bottom_segments, pkgi_cancel_button());
-        append_text_segment(bottom_segments, " home");
+        append_text_segment(bottom_segments, " 主页");
     }
 
     pkgi_clip_set(
@@ -1248,7 +1248,7 @@ void pkgi_reload()
         LOGFE("Database reload failed: {}", e.what());
         pkgi_dialog_error(
                 fmt::format(
-                        "failed to reload db: {}, try to refresh?", e.what())
+                        "数据库重新加载失败：{}，是否刷新？", e.what())
                         .c_str());
     }
 }
@@ -1270,7 +1270,7 @@ void pkgi_open_db()
     {
         LOGFE("Database open failed: {}", e.what());
         throw formatEx<std::runtime_error>(
-                "DB initialization error: %s\nTry to delete them?");
+                "数据库初始化错误：%s\n是否删除数据库文件重试？");
     }
 
     pkgi_reload();
@@ -1443,7 +1443,7 @@ static const char* pkgi_group_label(int group)
         text[0] = static_cast<char>('A' + group - 2);
         return text;
     }
-    return "Other";
+    return "其他";
 }
 
 int pkgi_next_group(int current, const bool present[PKGI_GROUP_COUNT], bool forward)
@@ -1524,13 +1524,13 @@ void pkgi_queue_livearea_install(
     if (pending_livearea_installs.size() == 1)
     {
         pkgi_dialog_message(
-                fmt::format("Queueing {} in LiveArea...", title).c_str(), 0);
+                fmt::format("正在将 {} 加入 LiveArea 队列…", title).c_str(), 0);
     }
     else
     {
         pkgi_dialog_message(
                 fmt::format(
-                        "Queueing {} items in LiveArea...",
+                        "正在将 {} 个项目加入 LiveArea 队列…",
                         pending_livearea_installs.size())
                         .c_str(),
                 0);
@@ -1566,7 +1566,7 @@ void pkgi_process_pending_livearea_installs()
             pending_livearea_installs.clear();
             pkgi_dialog_error(
                     fmt::format(
-                            "Failed to queue {} in LiveArea: {}",
+                            "将 {} 加入 LiveArea 队列失败：{}",
                             install.title,
                             e.what())
                             .c_str());
@@ -1577,10 +1577,10 @@ void pkgi_process_pending_livearea_installs()
     pkgi_dialog_message(
             (count == 1
                             ? fmt::format(
-                                      "Installation of {} queued in LiveArea",
+                                      "{} 已加入 LiveArea 安装队列",
                                       first_title)
                             : fmt::format(
-                                      "{} installations queued in LiveArea",
+                                      "已将 {} 个安装任务加入 LiveArea 队列",
                                       count))
                     .c_str());
 }
@@ -1641,7 +1641,7 @@ void pkgi_start_download(
 
             if (psp_install_mode == PspInstallMode::LiveAreaPbp && !has_psp_bgdl)
                 throw std::runtime_error(
-                        "NoPspEmuDrm is required to queue PSP installs in LiveArea");
+                        "通过 LiveArea 队列安装 PSP 游戏需要 NoPspEmuDrm");
 
             if (
                 mode == ModeGames || mode == ModeDlcs || mode == ModeDemos || mode == ModeThemes ||
@@ -1691,7 +1691,7 @@ void pkgi_start_download(
     catch (const std::exception& e)
     {
         pkgi_dialog_error(
-                fmt::format("Failed to install {}: {}", item.name, e.what())
+                fmt::format("安装 {} 失败：{}", item.name, e.what())
                         .c_str());
     }
 }
@@ -1704,8 +1704,7 @@ int main()
     {
         if (!pkgi_is_unsafe_mode())
             throw std::runtime_error(
-                    "Usagi PKGj requires unsafe mode to be enabled in HENkaku "
-                    "settings!");
+                    "Usagi PKGj 需要在 HENkaku 设置中启用不安全模式！");
 
         Downloader downloader;
 
@@ -1718,7 +1717,7 @@ int main()
         downloader.error = [](const std::string& error)
         {
             // FIXME this runs on the wrong thread
-            pkgi_dialog_error(("Download failure: " + error).c_str());
+            pkgi_dialog_error(("下载失败：" + error).c_str());
         };
 
         LOG("Usagi PKGj started");
@@ -1770,6 +1769,27 @@ int main()
         uint32_t* pixels = NULL;
         int width, height;
 #ifndef PKGI_SIMULATOR
+        // All simplified-Chinese characters used by the ImGui overlays
+        // (gameview, dialogs, config editor, log viewer, grid, ...). The
+        // glyph ranges are built from this text instead of the full CJK
+        // block to keep the font atlas small.
+        static const char cjk_ui_chars[] =
+                "搜索清除排序方式标题区域名称大小日期筛选亚洲欧洲"
+                "日本美国仅已安装的游戏显示网格视图刷新编辑日志查看器返回"
+                "分类自定义列表主页浏览选择返回错误确定未知不完整安装中未"
+                "下载本体封面正在最低固件版本当前基础包无有兼容补丁版本号"
+                "内容包最后更新诊断状态内核插件存在检测到为可用队列无时关"
+                "关闭借助可运行此游戏或满足要求已通过请确认与一致重新未就"
+                "先再不匹配如果同时降级更新过借助行数暂无移动长按秒快速滚"
+                "动放弃修改空文件配置编辑保存并准备收尾正在创建附加空闲电量"
+                "已选择数量剩余详情菜单多选其他项目刷新游戏兼容包更新无法获"
+                "取列表重新加载数据库初始化删除文件重试搜索致命错误需要设置"
+                "中启用不安全模式失败发现新版本是否检查未检测到将无法安装和"
+                "运行队列任务内容写入响应长度断开取消续传数据版本已删除损坏"
+                "内部输入下溢输出上溢越界解压重命名替换合并目录待安装过多先"
+                "通知部分继续设备调初始返第二次列表空较网络连试解析第行加载"
+                "类型模板尚未启用填写以该功能现请以入口调用返回获取自定义流"
+                "地址校验表事务清空语句割";
         auto build_imgui_ranges =
                 [](const ImWchar* base_ranges, ImVector<ImWchar>& ranges)
         {
@@ -1781,9 +1801,20 @@ int main()
             builder.AddChar(0x25A1); // square
             builder.BuildRanges(&ranges);
         };
+        auto build_cjk_ranges = [](ImVector<ImWchar>& ranges)
+        {
+            ImFontGlyphRangesBuilder builder;
+            builder.AddText(cjk_ui_chars);
+            builder.AddChar(0x2573); // cross
+            builder.AddChar(0x25CB); // circle
+            builder.AddChar(0x25B3); // triangle
+            builder.AddChar(0x25A1); // square
+            builder.BuildRanges(&ranges);
+        };
 
         ImVector<ImWchar> latin_ranges;
         ImVector<ImWchar> japanese_ranges;
+        ImVector<ImWchar> cjk_ranges;
         build_imgui_ranges(io.Fonts->GetGlyphRangesDefault(), latin_ranges);
         if (!io.Fonts->AddFontFromFileTTF(
                     "sa0:/data/font/pvf/ltn0.pvf",
@@ -1802,6 +1833,27 @@ int main()
                     20.0f,
                     &merge_cfg,
                     japanese_ranges.Data);
+        }
+        {
+            // Simplified-Chinese glyphs: jpn0.pvf (JIS) lacks several
+            // simplified-only characters (电、页、网…). Prefer the firmware
+            // Chinese font; if absent, best-effort merge from jpn0.pvf.
+            ImFontConfig merge_cfg;
+            merge_cfg.MergeMode = true;
+            build_cjk_ranges(cjk_ranges);
+            if (!pkgi_file_exists("sa0:/data/font/pvf/chinese.pvf") ||
+                !io.Fonts->AddFontFromFileTTF(
+                        "sa0:/data/font/pvf/chinese.pvf",
+                        20.0f,
+                        &merge_cfg,
+                        cjk_ranges.Data))
+            {
+                io.Fonts->AddFontFromFileTTF(
+                        "sa0:/data/font/pvf/jpn0.pvf",
+                        20.0f,
+                        &merge_cfg,
+                        cjk_ranges.Data);
+            }
         }
 #endif
         io.Fonts->GetTexDataAsRGBA32((uint8_t**)&pixels, &width, &height);
@@ -2086,7 +2138,7 @@ int main()
                     switch (mres)
                     {
                     case MenuResultSearch:
-                        pkgi_dialog_input_text("Search", search_text);
+                        pkgi_dialog_input_text("搜索", search_text);
                         break;
                     case MenuResultSearchClear:
                         search_active = 0;
@@ -2158,7 +2210,7 @@ int main()
         LOGFE("Fatal error in main loop: {}", e.what());
         state = StateError;
         pkgi_snprintf(
-                error_state, sizeof(error_state), "Fatal error: %s", e.what());
+                error_state, sizeof(error_state), "致命错误：%s", e.what());
 
         pkgi_input input;
         while (pkgi_update(&input))
