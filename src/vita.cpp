@@ -703,7 +703,7 @@ void pkgi_start(void)
 
     vita2d_init_advanced(4 * 1024 * 1024);
     vita2d_system_pgf_config pgf_confs[5] = {
-            {SCE_FONT_LANGUAGE_SIMPLIFIED_CHINESE, pkgi_is_chinese_char},
+            {SCE_FONT_LANGUAGE_CHINESE, pkgi_is_chinese_char},
             {SCE_FONT_LANGUAGE_JAPANESE, pkgi_is_japanese_char},
             {SCE_FONT_LANGUAGE_KOREAN, pkgi_is_korean_char},
             {SCE_FONT_LANGUAGE_LATIN, pkgi_is_latin_char},
