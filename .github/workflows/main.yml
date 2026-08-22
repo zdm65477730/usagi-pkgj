@@ -6,12 +6,10 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-# 全局默认最小权限
 permissions:
   contents: read
 
 jobs:
-  # 前置校验：检出代码、解析CMakeLists版本、检查tag是否已存在
   validate:
     name: Validate Release Command
     runs-on: ubuntu-24.04
@@ -25,21 +23,31 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Extract version from CMakeLists.txt
+      - name: Extract & verify version from CMakeLists.txt
         id: extract_version
         run: |
-          # 匹配 set(VITA_VERSION  "0.73" CACHE ...)
-          VERSION=$(awk '/^[[:space:]]*set\(VITA_VERSION/ {gsub(/.*"|"[^\"]*/,""); print}' CMakeLists.txt | head -n1 | tr -d '\n\r')
-          if [[ -z "${VERSION}" ]]; then
-            echo "::error::❌ 无法从 CMakeLists.txt 读取 VITA_VERSION"
+          VITA_VERSION=$(awk '/^[[:space:]]*set\(VITA_VERSION/ {gsub(/.*"|"[^\"]*/,""); print}' CMakeLists.txt | head -n1 | tr -d '\n\r')
+          DISPLAY_VERSION=$(awk '/^[[:space:]]*set\(PKGI_DISPLAY_VERSION/ {gsub(/.*"|"[^\"]*/,""); print}' CMakeLists.txt | head -n1 | tr -d '\n\r')
+
+          if [[ -z "${VITA_VERSION}" ]]; then
+            echo "::error::❌ 无法读取 VITA_VERSION"
             exit 1
           fi
-          TAG="v${VERSION}"
-          echo "VERSION=${VERSION}" >> "${GITHUB_OUTPUT}"
-          echo "TAG=${TAG}" >> "${GITHUB_OUTPUT}"
-          echo "✅ Parsed version: ${VERSION}, Tag: ${TAG}"
+          if [[ -z "${DISPLAY_VERSION}" ]]; then
+            echo "::error::❌ 无法读取 PKGI_DISPLAY_VERSION"
+            exit 1
+          fi
+          if [[ "${VITA_VERSION}" != "${DISPLAY_VERSION}" ]]; then
+            echo "::error::❌ 版本不匹配：VITA_VERSION=${VITA_VERSION}, PKGI_DISPLAY_VERSION=${DISPLAY_VERSION}"
+            exit 1
+          fi
 
-      - name: Check if git tag already exists
+          TAG="v${VITA_VERSION}"
+          echo "VERSION=${VITA_VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "TAG=${TAG}" >> "${GITHUB_OUTPUT}"
+          echo "✅ Version: ${VITA_VERSION}, Tag: ${TAG}"
+
+      - name: Check git tag exists
         run: |
           TAG=${{ steps.extract_version.outputs.TAG }}
           if git rev-parse "tags/$TAG" >/dev/null 2>&1; then
@@ -47,7 +55,6 @@ jobs:
             exit 1
           fi
 
-  # ── PS Vita build ────────────────────────────────────────────────────────────
   build-vita:
     name: Build PS Vita (UsagiPKGJ.vpk)
     runs-on: ubuntu-24.04
@@ -99,7 +106,6 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  # ── Host build (CLI + graphical simulator) ───────────────────────────────────
   build-host:
     name: Build Host (pkgj_cli + pkgj_sim)
     runs-on: ubuntu-24.04
@@ -169,7 +175,6 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  # ── GitHub Release + 评论通知 ─────────────────────────────────────────────────
   release:
     name: Create GitHub Release
     runs-on: ubuntu-24.04
@@ -177,7 +182,7 @@ jobs:
     needs: [validate, build-vita, build-host]
     permissions:
       contents: write
-      pull-requests: write # 用于回复 Issue / PR 评论
+      pull-requests: write
     steps:
       - uses: actions/checkout@v5
 
@@ -188,7 +193,6 @@ jobs:
         id: publish_release
         env:
           GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
           TAG: ${{ needs.validate.outputs.release_tag }}
         run: |
           set -e
@@ -203,7 +207,7 @@ jobs:
           git push origin "$TAG"
 
           gh release create "$TAG" \
-            --title "Release $TAG" \
+            --title "UsagiPKGJ $TAG" \
             --generate-notes \
             $PRERELEASE_FLAG \
             "usagi-pkgj-vita/UsagiPKGJ.vpk#UsagiPKGJ-${TAG}.vpk" \
